@@ -1,6 +1,11 @@
 
 # FIX Add sprite replacements for new symbols
 
+
+# CHANGE THIS TO 0 TO DISABLE 3RD LAYER, CHANGE TO 1 TO ENABLE
+hasmorelayers = 0
+
+
 import thumby
 from time import sleep
 
@@ -213,7 +218,7 @@ def solve(exp):
     if 'e' in exp:
         exp = exp.replace('e', 'math.e')
     
-    return eval(exp)
+    return str(eval(exp))
 
 def printex(message):
       if len(message) > 10:
@@ -260,34 +265,21 @@ def whichlog():
 while(1):
     frameCounter += 1
     
-    print(rOffset)
-    print(doOffset)
-    
-    if doOffset == 1:
-        if frameCounter % 20 == 0:
-            rOffset += 1
-        
-    if doOffset == 3:
-        if rOffset < -1:
-            if frameCounter % 20 == 0:
-                rOffset -= 1
+    if len(result) > 10 and doOffset == 0:
+        if rOffset > len(result)*4-40:
+            doOffset = 1
         else:
-            doOffset = 0
-    
-    if len(str(result)) > 10:
-        if rOffset < (len(str(result))*4) - 40:
-            if doOffset == 0:
-                if rOffset == -1 or rOffset == 0:
-                    doOffset = 1
-        else:
-            rOffset -= 1
-            doOffset = 3
-    else:
+            if frameCounter % 30 == 0:
+                rOffset += 1
+    elif len(result) <= 10:
         doOffset = 0
         rOffset = 0
-    
-    if doOffset == 3 and rOffset == -1:
-        doOffset == 0
+    if doOffset == 1:
+        if rOffset < -2:
+            doOffset = 0
+        else:
+            if frameCounter % 30 == 0:
+                rOffset -= 1
     
     if frameCounter % 60 == 0:
         borw = (borw+1) % 2
@@ -336,7 +328,6 @@ while(1):
             pi.y = (p//10)*6
             thumby.display.drawFilledRectangle(pi.x, pi.y, 4, 5, 0)
             thumby.display.drawSprite(pi)
-    result = str(result)
     if result == '<function>':
         thumby.display.drawText('USE (', 1, 34, 1)
     else:
@@ -365,7 +356,9 @@ while(1):
         cursor_pos = 0
     
     if button.buttonB.justPressed():
-        layer = (layer+1) % 3
+        if hasmorelayers == 1:
+            layer = (layer+1) % 3
+        else: layer = (layer+1) % 2
         
     if button.buttonL.justPressed():
         selx = (selx-1)%4
