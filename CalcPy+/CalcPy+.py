@@ -1,11 +1,6 @@
 
 # FIX Add sprite replacements for new symbols
 
-
-# CHANGE THIS TO 0 TO DISABLE 3RD LAYER, CHANGE TO 1 TO ENABLE
-hasmorelayers = 0
-
-
 import thumby
 from time import sleep
 
@@ -48,7 +43,7 @@ char = ''
 desc = ''
 exp = ''
 result = ''
-exclude = ['del', 'clr', 'right', 'left', 'log']
+exclude = ['del', 'clr', 'right', 'left', 'log', 'toggle']
 sqrts = []
 pis = []
 donewline = 0
@@ -60,7 +55,8 @@ rOffset = 0
 doOffset = 0
 degorrad = 0
 logsel = 0
-thelog = 'a'
+thelog = ''
+hasmorelayers = 1
 
 # Layer 1
 # BITMAP: width: 29, height: 33
@@ -75,8 +71,8 @@ layer1 = thumby.Sprite(29, 33, bitmap1, 43, 7)
 # BITMAP: width: 29, height: 33
 bitmap2 = bytearray([255,1,17,41,69,1,1,1,1,1,69,41,17,1,1,17,9,5,9,17,1,1,3,63,3,3,63,67,1,
            255,0,0,56,68,0,0,0,0,0,68,56,0,0,0,0,0,24,24,0,0,0,0,56,84,84,24,0,0,
-           255,0,0,0,124,0,0,0,0,16,32,60,4,0,0,68,32,16,8,68,0,0,4,8,240,8,4,0,0,
-           255,0,16,40,68,0,0,0,0,0,68,40,16,0,0,0,40,40,40,40,0,0,68,40,16,40,68,0,0,
+           255,68,40,16,40,68,0,0,4,8,240,8,4,0,0,0,16,32,60,4,0,0,68,32,16,8,68,0,0,
+           255,0,16,40,68,0,0,0,0,0,68,40,16,0,0,0,40,40,40,40,0,0,68,84,120,0,124,20,8,
            1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
 layer2 = thumby.Sprite(29, 33, bitmap2, 43, 7)
 
@@ -133,9 +129,21 @@ bitmap11 = bytearray([255,1,1,1,1,1,255,
 logcursor = thumby.Sprite(7, 9, bitmap11, 0, 12, 0)
 
 # Pi
-# BITMAP: width: 4, height: 5
+# BITMAP: width: 4, height: 5sd,
 bitmap12 = bytearray([15,1,15,17])
 pi = thumby.Sprite(4, 5, bitmap12, 0, 0)
+
+# 3 page indicator
+# BITMAP: width: 8, height: 9
+bitmap13 = bytearray([0,68,84,120,0,124,20,8,
+            0,0,0,0,0,0,0,0])
+ispage = thumby.Sprite(8, 9, bitmap13, 64, 31)
+
+# 2 page indicator
+# BITMAP: width: 8, height: 9
+bitmap14 = bytearray([0,100,84,88,0,124,20,8,
+            0,0,0,0,0,0,0,0])
+isntpage = thumby.Sprite(8, 9, bitmap14, 64, 31)
 
 thumby.display.setFPS(120)
 
@@ -165,23 +173,23 @@ def chartable(x, y, l):
         if x == 0:
             if y == 0: c, d = 'left', 'LEFT'
             elif y == 1: c, d = '(', ''
-            elif y == 2: c, d = '|', 'ABSOLUT'
+            elif y == 2: c, d = 'x', ''
             elif y == 3: c, d = '<', 'LESS'
         elif x == 1:
             if y == 0: c, d = 'right', 'RIGHT'
             elif y == 1: c, d = ')', ''
-            elif y == 2: c, d = 'a', 'ROOT'
+            elif y == 2: c, d = 'y', ''
             elif y == 3: c, d = '>', 'MORE'
         elif x == 2:
             if y == 0: c, d = '^', 'POWER'
             elif y == 1: c, d = '.', 'POINT'
-            elif y == 2: c, d = '%', ''
+            elif y == 2: c, d = 'a', 'ROOT'
             elif y == 3: c, d = '=', ''
         elif x == 3:
             if y == 0: c, d = 'b', 'PI'
             elif y == 1: c, d = 'e', 'EULER\'S'
-            elif y == 2: c, d = 'y', ''
-            elif y == 3: c, d = 'x', ''
+            elif y == 2: c, d = '%', ''
+            elif y == 3: c, d = 'toggle', '3 PAGES' if hasmorelayers == 1 else '2 PAGES'
     elif l == 2:
         if x == 0:
             if y == 0: c, d = 's', 'SIN'
@@ -197,12 +205,12 @@ def chartable(x, y, l):
             if y == 0: c, d = '', 'TAN'
             elif y == 1: c, d = 'g', 'ARC TAN'
             elif y == 2: c, d = 'k', 'HB TAN'
-            elif y == 3: c, d = 'n', 'HBIVCOS'
+            elif y == 3: c, d = 'n', 'HBIVTAN'
         elif x == 3:
             if y == 0: c, d = '!', ''
             elif y == 1: c, d = 'i', ''
             elif y == 2: c, d = 'log', 'LOG'
-            elif y == 3: c, d = 'deg', 'DEGREES' if degorrad == 0 else 'RADIANS'
+            elif y == 3: c, d = '', 'DEGREES' if degorrad == 0 else 'RADIANS'
     return c, d
 
 def solve(exp):
@@ -217,7 +225,6 @@ def solve(exp):
         exp = exp.replace('b', 'math.pi')
     if 'e' in exp:
         exp = exp.replace('e', 'math.e')
-    
     return str(eval(exp))
 
 def printex(message):
@@ -245,7 +252,6 @@ def printex(message):
 def whichlog():
     global logsel
     while(1):
-        print(logsel)
         logcursor.x = logsel*6 + 53
         thumby.display.drawSprite(logselection)
         thumby.display.drawSprite(logcursor)
@@ -343,6 +349,7 @@ while(1):
         thumby.display.drawSprite(layer1)
     elif layer == 1:
         thumby.display.drawSprite(layer2)
+        thumby.display.drawSprite(ispage if hasmorelayers == 1 else isntpage)
     elif layer == 2:
         thumby.display.drawSprite(layer3)
         thumby.display.drawSprite(deg if degorrad == 0 else rad)
@@ -401,6 +408,7 @@ while(1):
                 logsel = 0
                 exp = exp[:cursor_pos] + whichlog() + exp[cursor_pos:]
                 cursor_pos += 1
+            elif char == 'toggle': hasmorelayers = 1 if hasmorelayers == 0 else 0
             elif char == 'left': cursor_pos -= 1
             elif char == 'right': cursor_pos += 1
         else:
