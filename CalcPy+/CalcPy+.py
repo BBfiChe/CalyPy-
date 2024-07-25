@@ -54,6 +54,8 @@ borw = 0
 rOffset = 0
 doOffset = 0
 degorrad = 0
+logsel = 0
+thelog = 'a'
 
 # Layer 1
 # BITMAP: width: 29, height: 33
@@ -68,7 +70,7 @@ layer1 = thumby.Sprite(29, 33, bitmap1, 43, 7)
 # BITMAP: width: 29, height: 33
 bitmap2 = bytearray([255,1,17,41,69,1,1,1,1,1,69,41,17,1,1,17,9,5,9,17,1,1,3,63,3,3,63,67,1,
            255,0,0,56,68,0,0,0,0,0,68,56,0,0,0,0,0,24,24,0,0,0,0,56,84,84,24,0,0,
-           255,124,0,8,84,84,56,0,0,16,32,60,4,0,0,68,32,16,8,68,0,0,4,8,240,8,4,0,0,
+           255,0,0,0,124,0,0,0,0,16,32,60,4,0,0,68,32,16,8,68,0,0,4,8,240,8,4,0,0,
            255,0,16,40,68,0,0,0,0,0,68,40,16,0,0,0,40,40,40,40,0,0,68,40,16,40,68,0,0,
            1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
 layer2 = thumby.Sprite(29, 33, bitmap2, 43, 7)
@@ -112,6 +114,23 @@ deg = thumby.Sprite(6, 7, bitmap8, 65, 32)
 # BITMAP: width: 6, height: 7
 bitmap9 = bytearray([62,10,52,16,40,62])
 rad = thumby.Sprite(6, 7, bitmap9, 65, 32)
+
+# Log selection
+# BITMAP: width: 21, height: 13
+bitmap10 = bytearray([0,254,2,242,82,82,2,2,2,146,82,98,2,2,242,2,226,18,226,254,0,
+           0,15,8,9,9,9,8,12,8,9,9,9,8,12,9,8,9,9,9,15,0])
+logselection = thumby.Sprite(21, 13, bitmap10, 52, 10)
+
+# Log cursor
+# BITMAP: width: 7, height: 9
+bitmap11 = bytearray([255,1,1,1,1,1,255,
+           1,1,1,1,1,1,1])
+logcursor = thumby.Sprite(7, 9, bitmap11, 0, 12, 0)
+
+# Pi
+# BITMAP: width: 4, height: 5
+bitmap12 = bytearray([15,1,15,17])
+pi = thumby.Sprite(4, 5, bitmap12, 0, 0)
 
 thumby.display.setFPS(120)
 
@@ -218,29 +237,54 @@ def printex(message):
       for ln, line in enumerate(txt):
           thumby.display.drawText(line, 0, (thumby.display.textHeight+1)*ln, 1)
 
+def whichlog():
+    global logsel
+    while(1):
+        print(logsel)
+        logcursor.x = logsel*6 + 53
+        thumby.display.drawSprite(logselection)
+        thumby.display.drawSprite(logcursor)
+        thumby.display.update()
+        if button.buttonL.justPressed():
+           logsel = (logsel-1) % 3
+        elif button.buttonR.justPressed():
+            logsel = (logsel+1) % 3
+        if button.buttonA.justPressed():
+           if logsel == 0:
+               return 'o'
+           elif logsel == 1:
+               return 'p'
+           elif logsel == 2:
+               return 'q'
+
 while(1):
     frameCounter += 1
+    
+    print(rOffset)
+    print(doOffset)
     
     if doOffset == 1:
         if frameCounter % 20 == 0:
             rOffset += 1
         
     if doOffset == 3:
-        if rOffset > -1:
+        if rOffset < -1:
             if frameCounter % 20 == 0:
                 rOffset -= 1
         else:
-            doOffset = 4
+            doOffset = 0
     
     if len(str(result)) > 10:
         if rOffset < (len(str(result))*4) - 40:
             if doOffset == 0:
-                doOffset = 1
+                if rOffset == -1 or rOffset == 0:
+                    doOffset = 1
         else:
             rOffset -= 1
-            doOffset = 2
+            doOffset = 3
     else:
         doOffset = 0
+        rOffset = 0
     
     if doOffset == 3 and rOffset == -1:
         doOffset == 0
@@ -282,10 +326,16 @@ while(1):
     printex(exp)
     if 'a' in exp:
        for s in sqrts:
-            sqrt.x = s%12 * 4
-            sqrt.y = (s//12)*6
+            sqrt.x = s%10 * 4
+            sqrt.y = (s//10)*6
             thumby.display.drawFilledRectangle(sqrt.x, sqrt.y, 4, 5, 0)
             thumby.display.drawSprite(sqrt)
+    if 'b' in exp:
+       for p in pis:
+            pi.x = p%10 * 4
+            pi.y = (p//10)*6
+            thumby.display.drawFilledRectangle(pi.x, pi.y, 4, 5, 0)
+            thumby.display.drawSprite(pi)
     result = str(result)
     if result == '<function>':
         thumby.display.drawText('USE (', 1, 34, 1)
@@ -355,7 +405,9 @@ while(1):
                         exp = ''
                         cursor_pos = 0
             elif char == 'log':
+                logsel = 0
                 exp = exp[:cursor_pos] + whichlog() + exp[cursor_pos:]
+                cursor_pos += 1
             elif char == 'left': cursor_pos -= 1
             elif char == 'right': cursor_pos += 1
         else:
