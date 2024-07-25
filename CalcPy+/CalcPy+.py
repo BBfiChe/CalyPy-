@@ -40,9 +40,10 @@ layer = 0
 cursor_pos = 1
 prevCursor_pos = 0
 char = ''
+desc = ''
 exp = ''
 result = ''
-exclude = ['del', 'clr', 'right', 'left', 'menu']
+exclude = ['del', 'clr', 'right', 'left', 'log']
 sqrts = []
 pis = []
 donewline = 0
@@ -52,6 +53,7 @@ frameCounter = 0
 borw = 0
 rOffset = 0
 doOffset = 0
+degorrad = 0
 
 # Layer 1
 # BITMAP: width: 29, height: 33
@@ -72,8 +74,13 @@ bitmap2 = bytearray([255,1,17,41,69,1,1,1,1,1,69,41,17,1,1,17,9,5,9,17,1,1,3,63,
 layer2 = thumby.Sprite(29, 33, bitmap2, 43, 7)
 
 # Layer 3
-
-
+# BITMAP: width: 29, height: 33
+bitmap6 = bytearray([255,1,73,85,37,1,1,1,1,57,69,69,1,1,1,1,5,125,5,1,1,1,1,1,189,1,1,1,1,
+           255,104,88,112,72,84,36,1,104,88,112,56,68,68,1,104,88,112,4,124,4,1,0,0,244,0,0,0,1,
+           255,28,32,28,72,84,36,1,28,32,28,56,68,68,1,28,32,28,4,124,4,1,0,124,0,80,104,120,1,
+           255,28,32,28,36,84,72,1,28,32,28,68,68,56,1,28,32,28,64,124,64,1,124,68,56,80,104,120,1,
+           1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1])
+layer3 = thumby.Sprite(29, 33, bitmap6, 43, 7)
 
 # Square root
 # BITMAP: width: 3, height: 5
@@ -90,15 +97,99 @@ cursor = thumby.Sprite(4, 1, bitmap4, 0, 0)
 bitmap5 = bytearray([0,0,0,0])
 cursorb = thumby.Sprite(4, 1, bitmap5, 0, 0)
 
+# Cursor, but for the keyboard
+# BITMAP: width: 8, height: 9
+bitmap7 = bytearray([255,1,1,1,1,1,1,255,
+           1,1,1,1,1,1,1,1])
+cursorc = thumby.Sprite(8, 9, bitmap7, 0, 0, 0)
+
+# Deg on 3rd layer
+# BITMAP: width: 6, height: 7
+bitmap8 = bytearray([62,34,28,40,52,60])
+deg = thumby.Sprite(6, 7, bitmap8, 65, 32)
+
+# Rad on 3rd layer
+# BITMAP: width: 6, height: 7
+bitmap9 = bytearray([62,10,52,16,40,62])
+rad = thumby.Sprite(6, 7, bitmap9, 65, 32)
+
+thumby.display.setFPS(120)
+
+def chartable(x, y, l):
+    if l == 0:
+        if x == 0:
+            if y == 0: c, d = '1', ''
+            elif y == 1: c, d = '4', ''
+            elif y == 2: c, d = '7', ''
+            elif y == 3: c, d = '0', ''
+        elif x == 1:
+            if y == 0: c, d = '2', ''
+            elif y == 1: c, d = '5', ''
+            elif y == 2: c, d = '8', ''
+            elif y == 3: c, d = 'del', 'DELETE'
+        elif x == 2:
+            if y == 0: c, d = '3', ''
+            elif y == 1: c, d = '6', ''
+            elif y == 2: c, d = '9', ''
+            elif y == 3: c, d = 'clr', 'CLEAR'
+        elif x == 3:
+            if y == 0: c, d = '+', ''
+            elif y == 1: c, d = '-', ''
+            elif y == 2: c, d = '*', ''
+            elif y == 3: c, d = '/', ''
+    elif l == 1:
+        if x == 0:
+            if y == 0: c, d = 'left', 'LEFT'
+            elif y == 1: c, d = '(', ''
+            elif y == 2: c, d = '|', 'ABSOLUT'
+            elif y == 3: c, d = '<', 'LESS'
+        elif x == 1:
+            if y == 0: c, d = 'right', 'RIGHT'
+            elif y == 1: c, d = ')', ''
+            elif y == 2: c, d = 'a', 'ROOT'
+            elif y == 3: c, d = '>', 'MORE'
+        elif x == 2:
+            if y == 0: c, d = '^', 'POWER'
+            elif y == 1: c, d = '.', 'POINT'
+            elif y == 2: c, d = '%', ''
+            elif y == 3: c, d = '=', ''
+        elif x == 3:
+            if y == 0: c, d = 'b', 'PI'
+            elif y == 1: c, d = 'e', 'EULER\'S'
+            elif y == 2: c, d = 'y', ''
+            elif y == 3: c, d = 'x', ''
+    elif l == 2:
+        if x == 0:
+            if y == 0: c, d = 's', 'SIN'
+            elif y == 1: c, d = 'd', 'ARC SIN'
+            elif y == 2: c, d = 'h', 'HB SIN'
+            elif y == 3: c, d = 'l', 'HBIVSIN'
+        elif x == 1:
+            if y == 0: c, d = 'c', 'COS'
+            elif y == 1: c, d = 'f', 'ARC COS'
+            elif y == 2: c, d = 'j', 'HB COS'
+            elif y == 3: c, d = 'm', 'HBIVCOS'
+        elif x == 2:
+            if y == 0: c, d = '', 'TAN'
+            elif y == 1: c, d = 'g', 'ARC TAN'
+            elif y == 2: c, d = 'k', 'HB TAN'
+            elif y == 3: c, d = 'n', 'HBIVCOS'
+        elif x == 3:
+            if y == 0: c, d = '!', ''
+            elif y == 1: c, d = 'i', ''
+            elif y == 2: c, d = 'log', 'LOG'
+            elif y == 3: c, d = '`', 'DEGREES'
+    return c, d
+
 def printex(message):
-      if len(message) > 12:
-          message = message[:12]+'\n'+message[12:]
-          if len(message) > 25:
-              message = message[:25]+'\n'+message[25:]
-              if len(message) > 38:
-                  message = message[:38]+'\n'+message[38:]
-                  if len(message) > 51:
-                      message = message[:51]+'\n'+message[51:]
+      if len(message) > 10:
+          message = message[:10]+'\n'+message[10:]
+          if len(message) > 21:
+              message = message[:21]+'\n'+message[21:]
+              if len(message) > 32:
+                  message = message[:32]+'\n'+message[32:]
+                  if len(message) > 43:
+                      message = message[:43]+'\n'+message[43:]
                   
       message = str(message)
       txt = [""]
@@ -116,26 +207,18 @@ while(1):
     frameCounter += 1
     
     if doOffset == 1:
-        if frameCounter % 10 == 0:
+        if frameCounter % 20 == 0:
             rOffset += 1
         
     if doOffset == 3:
-        if rOffset > -4:
-            if frameCounter % 10 == 0:
+        if rOffset > -1:
+            if frameCounter % 20 == 0:
                 rOffset -= 1
         else:
             doOffset = 4
     
-    if doOffset == 2:
-        if frameCounter % 100 == 0:
-            doOffset = 3
-    
-    if doOffset == 4:
-        if frameCounter % 100 == 0:
-            doOffset = 0
-    
-    if len(str(result)) > 12:
-        if rOffset < (len(str(result))*4) - 44:
+    if len(str(result)) > 10:
+        if rOffset < (len(str(result))*4) - 40:
             if doOffset == 0:
                 doOffset = 1
         else:
@@ -144,7 +227,7 @@ while(1):
     else:
         doOffset = 0
     
-    if doOffset == 3 and rOffset == -4:
+    if doOffset == 3 and rOffset == -1:
         doOffset == 0
     
     if frameCounter % 60 == 0:
@@ -170,15 +253,95 @@ while(1):
         except:
             pis.pop(pis.index(p))
             
-    if len(exp) > 60: exp = exp[:-1]
-    cursor.x = 1 if cursor_pos == 0 else (cursor_pos%12)*4 if cursor_pos < 60 else 80
-    cursor.y = ((cursor_pos // 12)*6)+6
+    if len(exp) > 50: exp = exp[:-1]
+    cursor.x = 1 if cursor_pos == 0 else (cursor_pos%10)*4 if cursor_pos < 50 else 80
+    cursor.y = ((cursor_pos // 10)*6)+6
     cursorb.x = cursor.x
     cursorb.y = cursor.y
+    cursorc.x = selx*7+43
+    cursorc.y = sely*8+7
     thumby.display.fill(0)
-    thumby.display.drawLine(50, 0, 50, 6, 1)
-    thumby.display.drawLine(50, 7, 72, 7, 1)
-    thumby.display.drawLine(0, 32, 49, 32, 1)
+    thumby.display.drawLine(43, 0, 43, 6, 1)
+    thumby.display.drawLine(0, 32, 42, 32, 1)
+    thumby.display.drawSprite(cursor if borw == 0 else cursorb)
     printex(exp)
+    if 'a' in exp:
+       for s in sqrts:
+            sqrt.x = s%12 * 4
+            sqrt.y = (s//12)*6
+            thumby.display.drawFilledRectangle(sqrt.x, sqrt.y, 4, 5, 0)
+            thumby.display.drawSprite(sqrt)
     result = str(result)
+    if result == '<function>':
+        thumby.display.drawText('USE (', 1, 34, 1)
+    else:
+        thumby.display.drawText(result, 1-rOffset, 34, 1)
+    try:
+        result = CalcFun.solve(exp)
+    except:
+        if len(exp) == 0:
+            result = '='
+        else:
+            result = 'ERROR'
+    if layer == 0:
+        thumby.display.drawSprite(layer1)
+    elif layer == 1:
+        thumby.display.drawSprite(layer2)
+    elif layer == 2:
+        thumby.display.drawSprite(layer3)
+        thumby.display.drawSprite(deg if degorrad == 0 else rad)
+    thumby.display.drawText(desc, 45, 1, 1)
+    thumby.display.drawSprite(cursorc)
     thumby.display.update()
+    
+    if cursor_pos < 0:
+        cursor_pos = len(exp)
+    elif cursor_pos > len(exp):
+        cursor_pos = 0
+    
+    if button.buttonB.justPressed():
+        layer = (layer+1) % 3
+        
+    if button.buttonL.justPressed():
+        selx = (selx-1)%4
+    elif button.buttonR.justPressed():
+        selx = (selx+1)%4
+        
+    if button.buttonU.justPressed():
+        sely = (sely-1)%4
+    elif button.buttonD.justPressed():
+        sely = (sely+1)%4
+    
+    char, desc = chartable(selx, sely, layer)
+    
+    if button.buttonA.justPressed():
+        borw = 0
+        frameCounter = -60
+        if char in exclude:
+            if char == 'del':
+                if cursor_pos != 0:
+                    exp = exp[:cursor_pos-1] + exp[cursor_pos:]
+                if len(exp) > 0 and cursor_pos != 0: cursor_pos -= 1
+            elif char == 'clr':
+                if prevExp == '':
+                    prevExp = exp
+                    prevCursor_pos = cursor_pos
+                    exp = ''
+                    cursor_pos = 0
+                elif prevExp != '':
+                    if exp == '':
+                        exp = prevExp
+                        cursor_pos = prevCursor_pos
+                        prevExp = ''
+                        prevCursor_pos = 0
+                    else:
+                        prevExp = exp
+                        prevCursor_pos = cursor_pos
+                        exp = ''
+                        cursor_pos = 0
+            elif char == 'log':
+            elif char == 'left': cursor_pos -= 1
+            elif char == 'right': cursor_pos += 1
+        else:
+            exp = exp[:cursor_pos] + char + exp[cursor_pos:]
+            cursor_pos += 1
