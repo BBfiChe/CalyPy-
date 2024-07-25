@@ -1,5 +1,7 @@
 
 # FIX Add sprite replacements for new symbols
+# FIX Add x calculation
+# FIX Line 218 add correct replacements so only the operators get replaced
 
 import thumby
 from time import sleep
@@ -192,7 +194,7 @@ def chartable(x, y, l):
             elif y == 3: c, d = 'toggle', '3 PAGES' if hasmorelayers == 1 else '2 PAGES'
     elif l == 2:
         if x == 0:
-            if y == 0: c, d = 's', 'SIN'
+            if y == 0: c, d = 'w', 'SIN'
             elif y == 1: c, d = 'd', 'ARC SIN'
             elif y == 2: c, d = 'h', 'HB SIN'
             elif y == 3: c, d = 'l', 'HBIVSIN'
@@ -200,9 +202,9 @@ def chartable(x, y, l):
             if y == 0: c, d = 'c', 'COS'
             elif y == 1: c, d = 'f', 'ARC COS'
             elif y == 2: c, d = 'j', 'HB COS'
-            elif y == 3: c, d = 'm', 'HBIVCOS'
+            elif y == 3: c, d = 'u', 'HBIVCOS'
         elif x == 2:
-            if y == 0: c, d = '', 'TAN'
+            if y == 0: c, d = 'z', 'TAN'
             elif y == 1: c, d = 'g', 'ARC TAN'
             elif y == 2: c, d = 'k', 'HB TAN'
             elif y == 3: c, d = 'n', 'HBIVTAN'
@@ -217,14 +219,48 @@ def solve(exp):
     exp = str(exp)
     if '^' in exp:
         exp = exp.replace('^', '**')
+    if 'i' in exp:
+        exp = exp.replace('i', '-(-1)')
     if 'a' in exp:
         exp = exp.replace('a', 'math.sqrt')
+    if 'g' in exp:
+        exp = exp.replace('g', 'math.atan')
+    if 'o' in exp:
+        exp = exp.replace('o', 'math.log')
+    if 'c' in exp:
+        exp = exp.replace('c', 'math.cos')
+    if 'u' in exp:
+        exp = exp.replace('u', 'math.acosh')
     if '%' in exp:
         exp = exp.replace('%', '/100*')
+    if 'p' in exp:
+        exp = exp.replace('p', 'math.log2')
     if 'b' in exp:
         exp = exp.replace('b', 'math.pi')
     if 'e' in exp:
         exp = exp.replace('e', 'math.e')
+    if 'v' in exp:
+        exp = exp.replace('v', 'math.log10')
+    if 'n' in exp:
+        exp = exp.replace('n', 'math.atanh')
+    if 'w' in exp:
+        exp = exp.replace('w', 'math.sin')
+    if 'z' in exp:
+        exp = exp.replace('z', 'math.tan')
+    if 'd' in exp:
+        exp = exp.replace('d', 'math.asin')
+    if 'f' in exp:
+        exp = exp.replace('f', 'math.acos')
+    if 'h' in exp:
+        exp = exp.replace('h', 'math.sinh')
+    if 'j' in exp:
+        exp = exp.replace('j', 'math.cosh')
+    if 'k' in exp:
+        exp = exp.replace('k', 'math.tanh')
+    if 'l' in exp:
+        exp = exp.replace('l', 'math.asinh')
+    if 'm' in exp:
+        exp = exp.replace('m', 'math.acosh')
     return str(eval(exp))
 
 def printex(message):
@@ -266,7 +302,7 @@ def whichlog():
            elif logsel == 1:
                return 'p'
            elif logsel == 2:
-               return 'q'
+               return 'v'
 
 while(1):
     frameCounter += 1
