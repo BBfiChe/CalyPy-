@@ -178,8 +178,23 @@ def chartable(x, y, l):
             if y == 0: c, d = '!', ''
             elif y == 1: c, d = 'i', ''
             elif y == 2: c, d = 'log', 'LOG'
-            elif y == 3: c, d = '`', 'DEGREES'
+            elif y == 3: c, d = 'deg', 'DEGREES' if degorrad == 0 else 'RADIANS'
     return c, d
+
+def solve(exp):
+    exp = str(exp)
+    if '^' in exp:
+        exp = exp.replace('^', '**')
+    if 'a' in exp:
+        exp = exp.replace('a', 'math.sqrt')
+    if '%' in exp:
+        exp = exp.replace('%', '/100*')
+    if 'b' in exp:
+        exp = exp.replace('b', 'math.pi')
+    if 'e' in exp:
+        exp = exp.replace('e', 'math.e')
+    
+    return eval(exp)
 
 def printex(message):
       if len(message) > 10:
@@ -277,7 +292,7 @@ while(1):
     else:
         thumby.display.drawText(result, 1-rOffset, 34, 1)
     try:
-        result = CalcFun.solve(exp)
+        result = solve(exp)
     except:
         if len(exp) == 0:
             result = '='
@@ -340,6 +355,7 @@ while(1):
                         exp = ''
                         cursor_pos = 0
             elif char == 'log':
+                exp = exp[:cursor_pos] + whichlog() + exp[cursor_pos:]
             elif char == 'left': cursor_pos -= 1
             elif char == 'right': cursor_pos += 1
         else:
