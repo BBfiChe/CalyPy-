@@ -3,7 +3,7 @@
 # FIX Add x calculation
 # FIX factorial
 # FIX Show deg or rad based on last character
-# FIX Line 220 add correct replacements so only the operators get replaced
+# FIX if '|' in exp
 
 import thumby
 from time import sleep
@@ -47,7 +47,7 @@ char = ''
 desc = ''
 exp = ''
 result = ''
-exclude = ['del', 'clr', 'right', 'left', 'log', 'toggle']
+exclude = ['del', 'clr', 'right', 'left', 'log', 'toggle', '|']
 sqrts = []
 pis = []
 donewline = 0
@@ -198,13 +198,13 @@ def chartable(x, y, l):
         if x == 0:
             if y == 0: c, d = 'w', 'SIN'
             elif y == 1: c, d = 'd', 'ARC SIN'
-            elif y == 2: c, d = 'h', 'HB SIN'
+            elif y == 2: c, d = ']', 'HB SIN'
             elif y == 3: c, d = 'l', 'HBIVSIN'
         elif x == 1:
             if y == 0: c, d = 'c', 'COS'
             elif y == 1: c, d = 'f', 'ARC COS'
             elif y == 2: c, d = 'j', 'HB COS'
-            elif y == 3: c, d = 'u', 'HBIVCOS'
+            elif y == 3: c, d = '[', 'HBIVCOS'
         elif x == 2:
             if y == 0: c, d = 'z', 'TAN'
             elif y == 1: c, d = 'g', 'ARC TAN'
@@ -212,7 +212,7 @@ def chartable(x, y, l):
             elif y == 3: c, d = 'n', 'HBIVTAN'
         elif x == 3:
             if y == 0: c, d = '!', ''
-            elif y == 1: c, d = 'i', ''
+            elif y == 1: c, d = '|', 'ABSOLUT'
             elif y == 2: c, d = 'log', 'LOG'
             elif y == 3: c, d = '', 'DEGREES' if degorrad == 0 else 'RADIANS'
     return c, d
@@ -221,48 +221,57 @@ def solve(exp):
     exp = str(exp)
     if '^' in exp:
         exp = exp.replace('^', '**')
-    if 'i' in exp:
-        exp = exp.replace('i', '-(-1)')
+    if '%' in exp:
+        exp = exp.replace('%', '/100*')
     if 'a' in exp:
         exp = exp.replace('a', 'math.sqrt')
+    if 'n' in exp:
+        exp = exp.replace('n', 'math.atanh')
+    if 'l' in exp:
+        exp = exp.replace('l', 'math.asinh')
     if 'g' in exp:
         exp = exp.replace('g', 'math.atan')
     if 'o' in exp:
         exp = exp.replace('o', 'math.log')
-    if 'c' in exp:
-        exp = exp.replace('c', 'math.cos')
-    if 'u' in exp:
-        exp = exp.replace('u', 'math.acosh')
-    if '%' in exp:
-        exp = exp.replace('%', '/100*')
-    if 'h' in exp:
-        exp = exp.replace('h', 'math.sinh')
-    if 'm' in exp:
-        exp = exp.replace('m', 'math.acosh')
-    if 'l' in exp:
-        exp = exp.replace('l', 'math.asinh')
     if 'p' in exp:
         exp = exp.replace('p', 'math.log2')
     if 'b' in exp:
         exp = exp.replace('b', 'math.pi')
+    if 'c' in exp:
+        exp = exp.replace('c', 'math.cos')
+    if 'f' in exp:
+        exp = exp.replace('f', 'math.acos')
+    if '|' in exp:
+        if exp.count('|') == 1:
+            return 'ERROR'
+        else:
+            absindex = exp.find('|')
+            exp = exp[:absindex-1] + exp[absindex:]
+            exp = exp[:absindex] + 'math.fabs(' + exp[absindex:]
+            absindex = exp.find('|')
+            exp = exp[:absindex-1] + exp[absindex:]
+            exp = exp[:absindex] + ')' + exp[absindex:]
+    if ']' in exp:
+        exp = exp.replace(']', 'math.sinh')
+    if '[' in exp:
+        exp = exp.replace('[', 'math.acosh')
+    if 'u' in exp:
+        exp = exp.replace('u', 'math.acosh')
     if 'e' in exp:
         exp = exp.replace('e', 'math.e')
     if 'v' in exp:
         exp = exp.replace('v', 'math.log10')
-    if 'n' in exp:
-        exp = exp.replace('n', 'math.atanh')
     if 'w' in exp:
         exp = exp.replace('w', 'math.sin')
     if 'z' in exp:
         exp = exp.replace('z', 'math.tan')
     if 'd' in exp:
         exp = exp.replace('d', 'math.asin')
-    if 'f' in exp:
-        exp = exp.replace('f', 'math.acos')
     if 'j' in exp:
         exp = exp.replace('j', 'math.cosh')
     if 'k' in exp:
         exp = exp.replace('k', 'math.tanh')
+    print(exp)
     return str(eval(exp))
 
 def printex(message):
@@ -451,6 +460,10 @@ while(1):
             elif char == 'toggle': hasmorelayers = 1 if hasmorelayers == 0 else 0
             elif char == 'left': cursor_pos -= 1
             elif char == 'right': cursor_pos += 1
+            elif char == '|':
+                if exp.count('|') < 2:
+                    exp = exp[:cursor_pos] + char + exp[cursor_pos:]
+                    cursor_pos += 1
         else:
             exp = exp[:cursor_pos] + char + exp[cursor_pos:]
             cursor_pos += 1
