@@ -1,18 +1,20 @@
 
 # FIX Add sprite replacements for new symbols
 # FIX Add x calculation
-# FIX Line 218 add correct replacements so only the operators get replaced
+# FIX factorial
+# FIX Show deg or rad based on last character
+# FIX Line 220 add correct replacements so only the operators get replaced
 
 import thumby
 from time import sleep
 
 # Calculator icon
 # BITMAP: width: 31, height: 38
-bitmap0 = bytearray([254,255,255,7,7,7,199,71,71,71,71,71,71,71,71,71,71,71,71,71,7,103,103,97,253,253,97,111,111,15,254,
-           255,255,255,0,0,0,231,228,228,228,228,4,4,228,228,228,228,228,4,4,228,228,228,224,227,3,0,0,255,255,255,
-           255,255,255,0,0,0,243,243,243,243,243,0,0,243,243,243,243,243,0,0,243,243,243,243,243,0,0,0,255,255,255,
-           255,255,255,0,0,0,249,249,249,249,249,0,0,249,249,249,249,249,0,0,249,249,249,249,249,0,0,0,255,255,255,
-           31,63,63,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,63,63,31])
+bitmap0 = bytearray([254,255,255,7,7,7,199,71,71,71,71,71,71,71,71,71,71,71,71,7,231,231,225,253,253,253,225,239,239,15,254,
+            255,255,255,0,0,0,231,228,228,228,228,4,4,228,228,228,228,228,4,4,228,228,224,231,231,7,0,0,254,254,255,
+            255,255,255,0,0,0,243,243,243,243,243,0,0,243,243,243,243,243,0,0,243,243,243,243,243,0,0,0,255,255,255,
+            255,255,255,0,0,0,249,249,249,249,249,0,0,249,249,249,249,249,0,0,249,249,249,249,249,0,0,0,255,255,255,
+            31,63,63,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,56,63,63,31])
            
 splash = thumby.Sprite(31, 38, bitmap0, 1, 1)
 
@@ -233,6 +235,12 @@ def solve(exp):
         exp = exp.replace('u', 'math.acosh')
     if '%' in exp:
         exp = exp.replace('%', '/100*')
+    if 'h' in exp:
+        exp = exp.replace('h', 'math.sinh')
+    if 'm' in exp:
+        exp = exp.replace('m', 'math.acosh')
+    if 'l' in exp:
+        exp = exp.replace('l', 'math.asinh')
     if 'p' in exp:
         exp = exp.replace('p', 'math.log2')
     if 'b' in exp:
@@ -251,16 +259,10 @@ def solve(exp):
         exp = exp.replace('d', 'math.asin')
     if 'f' in exp:
         exp = exp.replace('f', 'math.acos')
-    if 'h' in exp:
-        exp = exp.replace('h', 'math.sinh')
     if 'j' in exp:
         exp = exp.replace('j', 'math.cosh')
     if 'k' in exp:
         exp = exp.replace('k', 'math.tanh')
-    if 'l' in exp:
-        exp = exp.replace('l', 'math.asinh')
-    if 'm' in exp:
-        exp = exp.replace('m', 'math.acosh')
     return str(eval(exp))
 
 def printex(message):
@@ -303,6 +305,8 @@ def whichlog():
                return 'p'
            elif logsel == 2:
                return 'v'
+        elif button.buttonB.justPressed():
+            return ''
 
 while(1):
     frameCounter += 1
