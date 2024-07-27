@@ -2,8 +2,7 @@
 # FIX Add sprite replacements for new symbols
 # FIX Add x calculation
 # FIX factorial
-# FIX Show deg or rad based on last character
-# FIX if '|' in exp
+# FIX make showhelp function
 
 import thumby
 from time import sleep
@@ -41,23 +40,21 @@ import thumbyButton as button
 
 prevExp = ''
 layer = 0
-cursor_pos = 1
+cursor_pos = 0
 prevCursor_pos = 0
 char = ''
 desc = ''
 exp = ''
 result = ''
-exclude = ['del', 'clr', 'right', 'left', 'log', 'toggle', '|']
+exclude = ['del', 'clr', 'right', 'left', 'log', 'toggle', '|', 'help']
 sqrts = []
 pis = []
-donewline = 0
 selx = 0
 sely = 0
 frameCounter = 0
 borw = 0
 rOffset = 0
 doOffset = 0
-degorrad = 0
 logsel = 0
 thelog = ''
 hasmorelayers = 1
@@ -83,10 +80,10 @@ layer2 = thumby.Sprite(29, 33, bitmap2, 43, 7)
 # Layer 3
 # BITMAP: width: 29, height: 33
 bitmap6 = bytearray([255,1,73,85,37,1,1,1,1,57,69,69,1,1,1,1,5,125,5,1,1,1,1,1,189,1,1,1,1,
-           255,104,88,112,72,84,36,1,104,88,112,56,68,68,1,104,88,112,4,124,4,1,0,0,244,0,0,0,1,
-           255,28,32,28,72,84,36,1,28,32,28,56,68,68,1,28,32,28,4,124,4,1,0,124,0,80,104,120,1,
-           255,28,32,28,36,84,72,1,28,32,28,68,68,56,1,28,32,28,64,124,64,1,124,68,56,80,104,120,1,
-           1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1])
+           255,104,88,112,72,84,36,0,104,88,112,56,68,68,0,104,88,112,4,124,4,0,0,0,252,0,0,0,0,
+           255,28,32,28,72,84,36,0,28,32,28,56,68,68,0,28,32,28,4,124,4,0,0,124,0,80,104,120,0,
+           255,28,32,28,36,84,72,0,28,32,28,68,68,56,0,28,32,28,64,124,64,0,0,4,180,28,0,0,0,
+           1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
 layer3 = thumby.Sprite(29, 33, bitmap6, 43, 7)
 
 # Square root
@@ -109,16 +106,6 @@ cursorb = thumby.Sprite(4, 1, bitmap5, 0, 0)
 bitmap7 = bytearray([255,1,1,1,1,1,1,255,
            1,1,1,1,1,1,1,1])
 cursorc = thumby.Sprite(8, 9, bitmap7, 0, 0, 0)
-
-# Deg on 3rd layer
-# BITMAP: width: 6, height: 7
-bitmap8 = bytearray([62,34,28,40,52,60])
-deg = thumby.Sprite(6, 7, bitmap8, 65, 32)
-
-# Rad on 3rd layer
-# BITMAP: width: 6, height: 7
-bitmap9 = bytearray([62,10,52,16,40,62])
-rad = thumby.Sprite(6, 7, bitmap9, 65, 32)
 
 # Log selection
 # BITMAP: width: 21, height: 13
@@ -214,7 +201,7 @@ def chartable(x, y, l):
             if y == 0: c, d = '!', ''
             elif y == 1: c, d = '|', 'ABSOLUT'
             elif y == 2: c, d = 'log', 'LOG'
-            elif y == 3: c, d = '', 'DEGREES' if degorrad == 0 else 'RADIANS'
+            elif y == 3: c, d = 'help', 'HELP'
     return c, d
 
 def solve(exp):
@@ -225,6 +212,8 @@ def solve(exp):
         exp = exp.replace('%', '/100*')
     if 'a' in exp:
         exp = exp.replace('a', 'math.sqrt')
+    if '!' in exp:
+        pass
     if 'n' in exp:
         exp = exp.replace('n', 'math.atanh')
     if 'l' in exp:
@@ -246,10 +235,10 @@ def solve(exp):
             return 'ERROR'
         else:
             absindex = exp.find('|')
-            exp = exp[:absindex-1] + exp[absindex:]
+            exp = exp[:absindex] + exp[absindex+1:]
             exp = exp[:absindex] + 'math.fabs(' + exp[absindex:]
             absindex = exp.find('|')
-            exp = exp[:absindex-1] + exp[absindex:]
+            exp = exp[:absindex] + exp[absindex+1:]
             exp = exp[:absindex] + ')' + exp[absindex:]
     if ']' in exp:
         exp = exp.replace(']', 'math.sinh')
@@ -464,6 +453,8 @@ while(1):
                 if exp.count('|') < 2:
                     exp = exp[:cursor_pos] + char + exp[cursor_pos:]
                     cursor_pos += 1
+            elif char == 'help':
+                showhelp()
         else:
             exp = exp[:cursor_pos] + char + exp[cursor_pos:]
             cursor_pos += 1
