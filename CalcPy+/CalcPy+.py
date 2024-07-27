@@ -3,6 +3,7 @@
 # FIX Add x calculation
 # FIX factorial
 # FIX make showhelp function
+# FIX Add degrees for trig
 
 import thumby
 from time import sleep
@@ -312,7 +313,7 @@ def whichlog():
 
 while(1):
     frameCounter += 1
-    print(hasmorelayers)
+    
     if len(result) > 10 and doOffset == 0:
         if rOffset > len(result)*4-40:
             doOffset = 1
