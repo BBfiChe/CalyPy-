@@ -57,7 +57,12 @@ rOffset = 0
 doOffset = 0
 logsel = 0
 thelog = ''
-hasmorelayers = 1
+thumby.saveData.setName('CalcPy+')
+if thumby.saveData.hasItem('layers'):
+    hasmorelayers = thumby.saveData.getItem('layers')
+else:
+    thumby.saveData.setItem('layers', 1)
+    hasmorelayers = 1
 
 # Layer 1
 # BITMAP: width: 29, height: 33
@@ -260,7 +265,6 @@ def solve(exp):
         exp = exp.replace('j', 'math.cosh')
     if 'k' in exp:
         exp = exp.replace('k', 'math.tanh')
-    print(exp)
     return str(eval(exp))
 
 def printex(message):
@@ -308,7 +312,7 @@ def whichlog():
 
 while(1):
     frameCounter += 1
-    
+    print(hasmorelayers)
     if len(result) > 10 and doOffset == 0:
         if rOffset > len(result)*4-40:
             doOffset = 1
@@ -390,7 +394,6 @@ while(1):
         thumby.display.drawSprite(ispage if hasmorelayers == 1 else isntpage)
     elif layer == 2:
         thumby.display.drawSprite(layer3)
-        thumby.display.drawSprite(deg if degorrad == 0 else rad)
     thumby.display.drawText(desc, 45, 1, 1)
     thumby.display.drawSprite(cursorc)
     thumby.display.update()
@@ -446,7 +449,10 @@ while(1):
                 logsel = 0
                 exp = exp[:cursor_pos] + whichlog() + exp[cursor_pos:]
                 cursor_pos += 1
-            elif char == 'toggle': hasmorelayers = 1 if hasmorelayers == 0 else 0
+            elif char == 'toggle':
+                hasmorelayers = 1 if hasmorelayers == 0 else 0
+                thumby.saveData.setItem('layers', hasmorelayers)
+                thumby.saveData.save()
             elif char == 'left': cursor_pos -= 1
             elif char == 'right': cursor_pos += 1
             elif char == '|':
